@@ -1,0 +1,21 @@
+export enum CommandsEnum {
+  SetPlayerSeat = 'set-player-seat',
+  SetCharacters = 'set-characters',
+  AddReminderToken = 'add-reminder-token',
+  RecallReminderTokens = 'recall-reminder-tokens',
+  LockReminderToken = 'lock-reminder-token',
+  RemoveReminderToken = 'remove-reminder-token',
+  BeginNextPhase = 'begin-next-phase',
+  SetPlayerDeadStatus = 'set-player-dead-status',
+  SendChatMessage = 'send-chat-message',
+  MarkChatRead = 'mark-chat-read',
+  UpdatePlayer = 'update-player',
+  RevealGrimoire = 'reveal-grimoire',
+  ChangePlayerCharacter = 'change-player-character',
+
+  // Voting
+  NominatePlayer = 'nominate-player',
+  BeginVote = 'begin-vote',
+  ToggleHand = 'toggle-hand',
+  ConfirmVote = 'confirm-vote',
+}
