@@ -83,8 +83,12 @@ export class GameState extends Schema {
 
   removePlayer(id: string) {
     this.fallbackIcons.push(this.players[id].fallbackIcon);
-    delete this.players[id];
-    delete this.storyteller.chatRooms[id];
+    if (id === this.storyteller.playerId) {
+      this.storyteller = null;
+    } else {
+      delete this.players[id];
+      delete this.storyteller.chatRooms[id];
+    }
     this.gameMeta.updateFromState(this);
   }
 }
