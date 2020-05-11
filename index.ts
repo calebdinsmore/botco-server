@@ -6,11 +6,14 @@ import cors from 'cors';
 import { Server } from 'colyseus';
 import { monitor } from '@colyseus/monitor';
 import basicAuth from 'express-basic-auth';
+import * as Sentry from '@sentry/node';
 
 import { GameRoom } from './rooms/game-room/game-room';
 
 const port = Number(process.env.PORT || 2567);
 const app = express();
+
+Sentry.init({ dsn: 'https://62caefddba59487cb7ae0f6c133daa16@o250406.ingest.sentry.io/5235205' });
 
 app.use(cors());
 app.use(express.json());
@@ -46,3 +49,7 @@ app.use('/colyseus', basicAuthMiddleware, monitor());
 
 gameServer.listen(port);
 console.log(`Listening on ws://localhost:${port}`);
+
+process.on('uncaughtException', function (err) {
+  Sentry.captureException(err);
+});
