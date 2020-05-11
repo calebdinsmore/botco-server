@@ -1,8 +1,12 @@
 import { CharacterTypeEnum } from './enum/character-type.enum';
 import { Schema, type } from '@colyseus/schema';
 import { ReminderToken } from './reminder-token';
+import { CharacterSetEnum } from './enum/character-set.enum';
 
 export class Character extends Schema {
+  @type('string')
+  id: string;
+
   @type('string')
   name: string;
 
@@ -29,6 +33,9 @@ export class Character extends Schema {
 
   @type('boolean')
   setup: boolean = false;
+
+  @type('string')
+  characterSet: CharacterSetEnum;
 
   reminderTokens: ReminderToken[] = [];
 }

@@ -10,8 +10,10 @@ export interface JsonRole {
   otherNight: number;
   otherNightReminder: string;
   setup: boolean;
+  ability: string;
 }
 import rolesJsonFile from './roles.json';
+import { BadMoonRisingSet } from '../schemas/characters/sets/bad-moon-rising-set';
 export const rolesJson: JsonRole[] = rolesJsonFile;
 
 export function isDefined(value: any) {
@@ -23,7 +25,7 @@ export function getCharacterSet(characterSet: CharacterSetEnum) {
     case CharacterSetEnum.TroubleBrewing:
       return new TroubleBrewingSet();
     case CharacterSetEnum.BadMoonRising:
-    // return set
+      return new BadMoonRisingSet();
     case CharacterSetEnum.SectsAndViolets:
     // return set
   }

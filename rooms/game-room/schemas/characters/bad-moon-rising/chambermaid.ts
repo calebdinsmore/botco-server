@@ -1,9 +1,10 @@
 import { Character } from '../../character';
 import { CharacterTypeEnum } from '../../enum/character-type.enum';
+import { ReminderToken } from '../../reminder-token';
 
-export class Saint extends Character {
+export class Chambermaid extends Character {
   constructor() {
     super();
-    this.id = 'saint';
+    this.id = 'chambermaid';
   }
 }

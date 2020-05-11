@@ -2,10 +2,10 @@ import { Character } from '../../character';
 import { CharacterTypeEnum } from '../../enum/character-type.enum';
 import { ReminderToken } from '../../reminder-token';
 
-export class Undertaker extends Character {
+export class Gambler extends Character {
   constructor() {
     super();
-    this.id = 'undertaker';
-    this.reminderTokens = [new ReminderToken('Dead', 'was executed and will be revealed to the Undertaker.', this)];
+    this.id = 'gambler';
+    this.reminderTokens = [new ReminderToken('Dead', 'guessed wrong and died.', this)];
   }
 }

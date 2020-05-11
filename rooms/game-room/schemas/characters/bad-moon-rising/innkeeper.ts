@@ -2,13 +2,13 @@ import { Character } from '../../character';
 import { CharacterTypeEnum } from '../../enum/character-type.enum';
 import { ReminderToken } from '../../reminder-token';
 
-export class Investigator extends Character {
+export class Innkeeper extends Character {
   constructor() {
     super();
-    this.id = 'investigator';
+    this.id = 'innkeeper';
     this.reminderTokens = [
-      new ReminderToken('Wrong', 'is not the true Minion.', this),
-      new ReminderToken('Minion', 'is the true Minion.', this),
+      new ReminderToken('Protected', 'is protected by the Innkeeper.', this),
+      new ReminderToken('Drunk', 'is drunk (Innkeeper).', this),
     ];
   }
 }
