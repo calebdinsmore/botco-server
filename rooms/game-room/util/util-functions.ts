@@ -11,7 +11,8 @@ export interface JsonRole {
   otherNightReminder: string;
   setup: boolean;
 }
-export const rolesJson: JsonRole[] = require('./roles.json');
+import rolesJsonFile from './roles.json';
+export const rolesJson: JsonRole[] = rolesJsonFile;
 
 export function isDefined(value: any) {
   return value !== undefined && value !== null;
