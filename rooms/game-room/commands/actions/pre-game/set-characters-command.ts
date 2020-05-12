@@ -34,6 +34,7 @@ export class SetCharactersCommand extends Command<GameState, { sessionId: string
         }
       }
     }
+    this.state.characterSet = charSet.setName;
     this.state.charactersDistributed = true;
   }
 }

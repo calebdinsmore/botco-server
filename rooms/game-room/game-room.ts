@@ -22,7 +22,6 @@ import { OnJoinCommand } from './commands';
 import { SetPlayerSeatCommand } from './commands/actions/pre-game/set-player-seat-command';
 import { Player } from './schemas';
 import { SetCharactersCommand } from './commands/actions/pre-game/set-characters-command';
-import { GamePhaseEnum } from './schemas/enum/game-phase.enum';
 import { ToggleHandCommand } from './commands/actions/in-game/voting/toggle-hand-command';
 import { ProcessNextVoteCommand } from './commands/actions/in-game/voting/increment-highlighted-player-command';
 import { SetPlayerDeadStatusCommand } from './commands/actions/in-game/set-player-dead-status-command';
@@ -114,7 +113,7 @@ export class GameRoom extends Room<GameState> {
   }
 
   onAuth(client: Client, options: JoinOptionsDto) {
-    if (options.isStoryteller && this.state?.storyteller) {
+    if (options.isStoryteller && this.state?.storyteller?.playerId) {
       client.send('error', 'Game already has a Storyteller.');
       return false;
     } else if (!options.isStoryteller) {
@@ -126,7 +125,7 @@ export class GameRoom extends Room<GameState> {
       for (let id in this.state.players) {
         const player: Player = this.state.players[id];
         if (player.username.toLowerCase().trim() === options.username.toLowerCase().trim()) {
-          client.send('Username already in use in room. Try a different name.');
+          client.send('error', 'Username already in use in room. Try a different name.');
           return false;
         }
       }
@@ -141,7 +140,7 @@ export class GameRoom extends Room<GameState> {
 
   async onLeave(client: Client, consented: boolean) {
     let player: Player;
-    if (client.sessionId === this.state.storyteller.playerId) {
+    if (client.sessionId === this.state.storyteller?.playerId) {
       player = this.state.storyteller;
     } else {
       player = this.state.players[client.sessionId];
@@ -161,12 +160,8 @@ export class GameRoom extends Room<GameState> {
       client.send('static_game_data', new StaticGameData());
     } catch (e) {
       // 20 seconds expired. let's remove the client.
-      console.log(e);
-      if (client.sessionId === this.state.storyteller.playerId) {
-        this.state.storyteller = null;
-      } else {
-        this.state.removePlayer(client.sessionId);
-      }
+      console.log('Removing player', client.sessionId);
+      this.state.removePlayer(client.sessionId);
     }
   }
 

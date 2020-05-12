@@ -6,6 +6,7 @@ import { Player } from './player';
 import { ReminderToken } from './reminder-token';
 import { Client } from 'colyseus';
 import * as _ from 'lodash';
+import { CharacterSetEnum } from './enum/character-set.enum';
 
 export class GameState extends Schema {
   @type({ map: Player })
@@ -27,7 +28,7 @@ export class GameState extends Schema {
   nextGamePhase: GamePhaseEnum = GamePhaseEnum.FirstNight;
 
   @filter(function (this: GameState, client: Client, value?: GameState['reminderTokens'], root?: Schema) {
-    return client.sessionId === this.storyteller.playerId;
+    return client.sessionId === this.storyteller?.playerId;
   })
   @type([ReminderToken])
   reminderTokens = new ArraySchema<ReminderToken>();
@@ -40,6 +41,9 @@ export class GameState extends Schema {
 
   @type('string')
   canSeeGrimoirePlayerId: string;
+
+  @type('string')
+  characterSet: CharacterSetEnum;
 
   fallbackIcons: string[] = [
     'em-male-student',
@@ -82,10 +86,10 @@ export class GameState extends Schema {
   }
 
   removePlayer(id: string) {
-    this.fallbackIcons.push(this.players[id].fallbackIcon);
     if (id === this.storyteller.playerId) {
-      this.storyteller = null;
+      this.storyteller = new Player();
     } else {
+      this.fallbackIcons.push(this.players[id].fallbackIcon);
       delete this.players[id];
       delete this.storyteller.chatRooms[id];
     }
