@@ -13,6 +13,9 @@ export class Player extends Schema {
   @type('boolean')
   connected: boolean = true;
 
+  @type('boolean')
+  inactive: boolean = false;
+
   @type('string')
   username: string;
 

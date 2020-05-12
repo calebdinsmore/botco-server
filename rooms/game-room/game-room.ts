@@ -28,6 +28,8 @@ import { SetPlayerDeadStatusCommand } from './commands/actions/in-game/set-playe
 import { RevealGrimoireCommand } from './commands/actions/in-game/reveal-grimoire-command';
 import * as _ from 'lodash';
 import { ChangePlayerCharacterCommand } from './commands/actions/in-game/change-player-character-command';
+import * as Sentry from '@sentry/node';
+import { CommandValidationError } from './util/command-validation-error';
 
 export class GameRoom extends Room<GameState> {
   dispatcher = new Dispatcher(this);
@@ -42,95 +44,107 @@ export class GameRoom extends Room<GameState> {
     // register actions
     this.onMessage('*', (client, type, message) => {
       console.log('New Action', type, message);
-      switch (type) {
-        case CommandsEnum.SetPlayerSeat:
-          this.dispatch(new SetPlayerSeatCommand(), client, { sessionId: client.sessionId, options: message });
-          break;
-        case CommandsEnum.SetCharacters:
-          this.dispatch(new SetCharactersCommand(), client, { sessionId: client.sessionId, options: message });
-          break;
-        case CommandsEnum.AddReminderToken:
-          this.dispatch(new AddReminderTokenCommand(), client, {
-            sessionId: client.sessionId,
-            options: message,
-          });
-          break;
-        case CommandsEnum.RecallReminderTokens:
-          this.dispatch(new RecallReminderTokensCommand(), client, { sessionId: client.sessionId });
-          break;
-        case CommandsEnum.RemoveReminderToken:
-          this.dispatch(new RemoveReminderTokenCommand(), client, {
-            sessionId: client.sessionId,
-            options: message,
-          });
-          break;
-        case CommandsEnum.BeginNextPhase:
-          this.dispatch(new BeginNextPhaseCommand(), client, { sessionId: client.sessionId });
-          break;
-        case CommandsEnum.NominatePlayer:
-          this.dispatch(new NominatePlayerCommand(), client, { sessionId: client.sessionId, options: message });
-          break;
-        case CommandsEnum.BeginVote:
-          this.dispatch(new BeginVoteCommand(), client, { sessionId: client.sessionId });
-          if (this.state.votingSchema.beginVote) {
-            this.startVote();
-          }
-          break;
-        case CommandsEnum.ToggleHand:
-          this.dispatch(new ToggleHandCommand(), client, { sessionId: client.sessionId });
-          break;
-        case CommandsEnum.ConfirmVote:
-          this.dispatch(new ConfirmVoteCommand(), client, { sessionId: client.sessionId, options: message });
-          break;
-        case CommandsEnum.SetPlayerDeadStatus:
-          this.dispatch(new SetPlayerDeadStatusCommand(), client, { sessionId: client.sessionId, options: message });
-          break;
-        case CommandsEnum.SendChatMessage:
-          this.dispatch(new SendChatMessageCommand(), client, { sessionId: client.sessionId, options: message });
-          break;
-        case CommandsEnum.MarkChatRead:
-          this.dispatch(new MarkChatReadCommand(), client, { sessionId: client.sessionId, options: message });
-          break;
-        case CommandsEnum.UpdatePlayer:
-          this.dispatch(new UpdatePlayerCommand(), client, { sessionId: client.sessionId, options: message });
-          break;
-        case CommandsEnum.RevealGrimoire:
-          const typedOptions = message as RevealGrimoirePayloadDto;
-          const newRevealedClient = _.find(this.clients, (x) => x.sessionId === typedOptions.playerId);
-          const oldRevealedClient = _.find(this.clients, (x) => x.sessionId === this.state.canSeeGrimoirePlayerId);
-          this.dispatch(new RevealGrimoireCommand(), client, {
-            newRevealedClient,
-            oldRevealedClient,
-            sessionId: client.sessionId,
-            options: message,
-          });
-          break;
-        case CommandsEnum.ChangePlayerCharacter:
-          this.dispatch(new ChangePlayerCharacterCommand(), client, { sessionId: client.sessionId, options: message });
-          break;
+      try {
+        switch (type) {
+          case CommandsEnum.SetPlayerSeat:
+            this.dispatch(new SetPlayerSeatCommand(), client, { sessionId: client.sessionId, options: message });
+            break;
+          case CommandsEnum.SetCharacters:
+            this.dispatch(new SetCharactersCommand(), client, { sessionId: client.sessionId, options: message });
+            break;
+          case CommandsEnum.AddReminderToken:
+            this.dispatch(new AddReminderTokenCommand(), client, {
+              sessionId: client.sessionId,
+              options: message,
+            });
+            break;
+          case CommandsEnum.RecallReminderTokens:
+            this.dispatch(new RecallReminderTokensCommand(), client, { sessionId: client.sessionId });
+            break;
+          case CommandsEnum.RemoveReminderToken:
+            this.dispatch(new RemoveReminderTokenCommand(), client, {
+              sessionId: client.sessionId,
+              options: message,
+            });
+            break;
+          case CommandsEnum.BeginNextPhase:
+            this.dispatch(new BeginNextPhaseCommand(), client, { sessionId: client.sessionId });
+            break;
+          case CommandsEnum.NominatePlayer:
+            this.dispatch(new NominatePlayerCommand(), client, { sessionId: client.sessionId, options: message });
+            break;
+          case CommandsEnum.BeginVote:
+            this.dispatch(new BeginVoteCommand(), client, { sessionId: client.sessionId });
+            if (this.state.votingSchema.beginVote) {
+              this.startVote();
+            }
+            break;
+          case CommandsEnum.ToggleHand:
+            this.dispatch(new ToggleHandCommand(), client, { sessionId: client.sessionId });
+            break;
+          case CommandsEnum.ConfirmVote:
+            this.dispatch(new ConfirmVoteCommand(), client, { sessionId: client.sessionId, options: message });
+            break;
+          case CommandsEnum.SetPlayerDeadStatus:
+            this.dispatch(new SetPlayerDeadStatusCommand(), client, { sessionId: client.sessionId, options: message });
+            break;
+          case CommandsEnum.SendChatMessage:
+            this.dispatch(new SendChatMessageCommand(), client, { sessionId: client.sessionId, options: message });
+            break;
+          case CommandsEnum.MarkChatRead:
+            this.dispatch(new MarkChatReadCommand(), client, { sessionId: client.sessionId, options: message });
+            break;
+          case CommandsEnum.UpdatePlayer:
+            this.dispatch(new UpdatePlayerCommand(), client, { sessionId: client.sessionId, options: message });
+            break;
+          case CommandsEnum.RevealGrimoire:
+            const typedOptions = message as RevealGrimoirePayloadDto;
+            const newRevealedClient = _.find(this.clients, (x) => x.sessionId === typedOptions.playerId);
+            const oldRevealedClient = _.find(this.clients, (x) => x.sessionId === this.state.canSeeGrimoirePlayerId);
+            this.dispatch(new RevealGrimoireCommand(), client, {
+              newRevealedClient,
+              oldRevealedClient,
+              sessionId: client.sessionId,
+              options: message,
+            });
+            break;
+          case CommandsEnum.ChangePlayerCharacter:
+            this.dispatch(new ChangePlayerCharacterCommand(), client, {
+              sessionId: client.sessionId,
+              options: message,
+            });
+            break;
+        }
+      } catch (ex) {
+        Sentry.captureException(ex);
       }
     });
   }
 
   onAuth(client: Client, options: JoinOptionsDto) {
-    if (options.isStoryteller && this.state?.storyteller?.playerId) {
-      client.send('error', 'Game already has a Storyteller.');
-      return false;
-    } else if (!options.isStoryteller) {
-      if (options.username.length > 12 || options.username.length < 2) {
-        client.send('error', 'Username must be between 2 and 12 characters.');
+    try {
+      if (options.isStoryteller && this.state?.storyteller?.playerId) {
+        client.send('error', 'Game already has a Storyteller.');
         return false;
-      }
-
-      for (let id in this.state.players) {
-        const player: Player = this.state.players[id];
-        if (player.username.toLowerCase().trim() === options.username.toLowerCase().trim()) {
-          client.send('error', 'Username already in use in room. Try a different name.');
+      } else if (!options.isStoryteller) {
+        if (options.username.length > 12 || options.username.length < 2) {
+          client.send('error', 'Username must be between 2 and 12 characters.');
           return false;
         }
+
+        for (let id in this.state.players) {
+          const player: Player = this.state.players[id];
+          if (player.username.toLowerCase().trim() === options.username.toLowerCase().trim()) {
+            client.send('error', 'Username already in use in room. Try a different name.');
+            return false;
+          }
+        }
       }
+      return true;
+    } catch (ex) {
+      Sentry.captureException(ex);
+      this.sendError(new Error('Something went wrong in Auth.'), client);
     }
-    return true;
   }
 
   onJoin(client: Client, options: JoinOptionsDto) {
@@ -139,29 +153,34 @@ export class GameRoom extends Room<GameState> {
   }
 
   async onLeave(client: Client, consented: boolean) {
-    let player: Player;
-    if (client.sessionId === this.state.storyteller?.playerId) {
-      player = this.state.storyteller;
-    } else {
-      player = this.state.players[client.sessionId];
-    }
-    player.connected = false;
-
     try {
-      if (consented) {
-        throw new Error('consented leave');
+      let player: Player;
+      if (client.sessionId === this.state.storyteller?.playerId) {
+        player = this.state.storyteller;
+      } else {
+        player = this.state.players[client.sessionId];
       }
+      player.connected = false;
 
-      // allow disconnected client to reconnect into this room until 20 seconds
-      await this.allowReconnection(client, 60);
+      try {
+        if (consented) {
+          throw new Error('consented leave');
+        }
 
-      // client returned! let's re-activate it.
-      player.connected = true;
-      client.send('static_game_data', new StaticGameData());
-    } catch (e) {
-      // 20 seconds expired. let's remove the client.
-      console.log('Removing player', client.sessionId);
-      this.state.removePlayer(client.sessionId);
+        // allow disconnected client to reconnect into this room until 20 seconds
+        await this.allowReconnection(client, 60);
+
+        // client returned! let's re-activate it.
+        player.connected = true;
+        client.send('static_game_data', new StaticGameData());
+      } catch (e) {
+        // 20 seconds expired. let's remove the client.
+        console.log('Removing player', client.sessionId);
+        this.state.removePlayer(client.sessionId);
+      }
+    } catch (ex) {
+      Sentry.captureException(ex);
+      this.sendError(new Error('Error in onLeave'), client);
     }
   }
 
@@ -172,13 +191,20 @@ export class GameRoom extends Room<GameState> {
 
   private dispatch<T extends Command>(command: T, client?: Client, payload?: T['payload']): void | Promise<unknown> {
     try {
-      return this.dispatcher.dispatch(command, payload);
-    } catch (e) {
-      if (client) {
-        client.send('error', `${e.name}: ${e.message}`);
-      } else {
-        this.broadcast('error', `${e.name}: ${e.message}`);
+      const promise = this.dispatcher.dispatch(command, payload);
+      if (promise) {
+        promise.catch((e) => {
+          if (!(e instanceof CommandValidationError)) {
+            Sentry.captureException(e);
+          }
+          this.sendError(e, client);
+        });
       }
+    } catch (e) {
+      if (!(e instanceof CommandValidationError)) {
+        Sentry.captureException(e);
+      }
+      this.sendError(e, client);
     }
   }
 
@@ -213,5 +239,13 @@ export class GameRoom extends Room<GameState> {
         this.clock.stop();
       }
     }, 2000);
+  }
+
+  private sendError(error: any, client?: Client) {
+    if (client) {
+      client.send('error', `${error.name}: ${error.message}`);
+    } else {
+      this.broadcast('error', `${error.name}: ${error.message}`);
+    }
   }
 }
