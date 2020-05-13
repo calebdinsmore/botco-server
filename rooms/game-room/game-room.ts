@@ -132,14 +132,14 @@ export class GameRoom extends Room<GameState> {
         client.send('error', 'Game already has a Storyteller.');
         return false;
       } else if (!options.isStoryteller) {
-        if (options.username.length > 12 || options.username.length < 2) {
+        if (options.username?.length > 12 || options.username?.length < 2) {
           client.send('error', 'Username must be between 2 and 12 characters.');
           return false;
         }
 
         for (let id in this.state.players) {
           const player: Player = this.state.players[id];
-          if (player.username.toLowerCase().trim() === options.username.toLowerCase().trim()) {
+          if (player?.username?.toLowerCase().trim() === options.username?.toLowerCase().trim()) {
             client.send('error', 'Username already in use in room. Try a different name.');
             return false;
           }
