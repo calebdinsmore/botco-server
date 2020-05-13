@@ -4,6 +4,7 @@ export class ChatMessage extends Schema {
     super();
     this.authorId = authorId;
     this.content = content;
+    this.timestamp = new Date().getTime();
   }
 
   @type('string')
@@ -11,4 +12,7 @@ export class ChatMessage extends Schema {
 
   @type('string')
   content: string;
+
+  @type('number')
+  timestamp: number;
 }

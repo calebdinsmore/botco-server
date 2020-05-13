@@ -30,6 +30,7 @@ import * as _ from 'lodash';
 import { ChangePlayerCharacterCommand } from './commands/actions/in-game/change-player-character-command';
 import * as Sentry from '@sentry/node';
 import { CommandValidationError } from './util/command-validation-error';
+import { ClientMessageTypeEnum } from './util/client-messages/enum/client-message-type.enum';
 
 export class GameRoom extends Room<GameState> {
   dispatcher = new Dispatcher(this);
@@ -89,7 +90,11 @@ export class GameRoom extends Room<GameState> {
             this.dispatch(new SetPlayerDeadStatusCommand(), client, { sessionId: client.sessionId, options: message });
             break;
           case CommandsEnum.SendChatMessage:
-            this.dispatch(new SendChatMessageCommand(), client, { sessionId: client.sessionId, options: message });
+            this.dispatch(new SendChatMessageCommand(), client, {
+              sessionId: client.sessionId,
+              clients: this.clients,
+              options: message,
+            });
             break;
           case CommandsEnum.MarkChatRead:
             this.dispatch(new MarkChatReadCommand(), client, { sessionId: client.sessionId, options: message });
@@ -149,7 +154,7 @@ export class GameRoom extends Room<GameState> {
 
   onJoin(client: Client, options: JoinOptionsDto) {
     this.dispatch(new OnJoinCommand(), client, { sessionId: client.sessionId, options });
-    client.send('static_game_data', new StaticGameData());
+    client.send(ClientMessageTypeEnum.StaticGameData, new StaticGameData());
   }
 
   async onLeave(client: Client, consented: boolean) {
@@ -172,7 +177,7 @@ export class GameRoom extends Room<GameState> {
 
         // client returned! let's re-activate it.
         player.connected = true;
-        client.send('static_game_data', new StaticGameData());
+        client.send(ClientMessageTypeEnum.StaticGameData, new StaticGameData());
       } catch (e) {
         // 20 seconds expired. let's remove the client.
         console.log('Removing player', client.sessionId);
