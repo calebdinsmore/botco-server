@@ -4,6 +4,10 @@ import { ChatRoom } from '../rooms/game-room/schemas/chat-room';
 import { SendChatMessagePayloadDto } from '../rooms/game-room/commands/actions/in-game/dto/send-chat-message-payload.dto';
 import { CommandsEnum } from '../rooms/game-room/commands/commands.enum';
 
+let globalState: GameState;
+
+const playerMap = new Map<string, boolean>();
+
 export function requestJoinOptions(this: Client, i: number) {
   if (i === 0) {
     return { requestNumber: i, username: generateRoomCode(), isStoryteller: true };
@@ -28,15 +32,21 @@ export function onError(this: Room, err: any) {
 }
 
 export function onStateChange(this: Room, state: GameState) {
-  if (state.players[this.sessionId]) {
-    const player: Player = state.players[this.sessionId];
-    for (let otherPlayerId in player.chatRooms) {
-      this.send(CommandsEnum.SendChatMessage, {
-        toPlayerId: otherPlayerId,
-        content:
-          'Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing ',
-      } as SendChatMessagePayloadDto);
-    }
+  if (!globalState || !playerMap.get(this.sessionId)) {
+    playerMap.set(this.sessionId, true);
+    globalState = state;
+    setInterval(() => {
+      if (globalState.players[this.sessionId]) {
+        const player: Player = globalState.players[this.sessionId];
+        for (let otherPlayerId in player.chatRooms) {
+          this.send(CommandsEnum.SendChatMessage, {
+            toPlayerId: otherPlayerId,
+            content:
+              'Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing ',
+          } as SendChatMessagePayloadDto);
+        }
+      }
+    });
   }
   console.log(this.sessionId, 'new state:', state);
 }
