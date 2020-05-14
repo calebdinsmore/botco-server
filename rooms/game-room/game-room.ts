@@ -184,8 +184,8 @@ export class GameRoom extends Room<GameState> {
           throw new Error('consented leave');
         }
 
-        // allow disconnected client to reconnect into this room until 20 seconds
-        await this.allowReconnection(client, 20);
+        // allow disconnected client to reconnect into this room until 45 seconds
+        await this.allowReconnection(client, 45);
 
         // client returned! let's re-activate it.
         player.connected = true;
