@@ -12,6 +12,7 @@ export enum CommandsEnum {
   UpdatePlayer = 'update-player',
   RevealGrimoire = 'reveal-grimoire',
   ChangePlayerCharacter = 'change-player-character',
+  RestartGame = 'restart-game',
 
   // Voting
   NominatePlayer = 'nominate-player',

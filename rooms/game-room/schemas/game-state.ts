@@ -9,6 +9,9 @@ import * as _ from 'lodash';
 import { CharacterSetEnum } from './enum/character-set.enum';
 
 export class GameState extends Schema {
+  @type('boolean')
+  isLocked: boolean = false;
+
   @type({ map: Player })
   players = new MapSchema<Player>();
 

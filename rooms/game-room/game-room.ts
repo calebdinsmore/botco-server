@@ -31,6 +31,7 @@ import { ChangePlayerCharacterCommand } from './commands/actions/in-game/change-
 import * as Sentry from '@sentry/node';
 import { CommandValidationError } from './util/command-validation-error';
 import { ClientMessageTypeEnum } from './util/client-messages/enum/client-message-type.enum';
+import { RestartGameCommand } from './commands/actions/in-game/restart-game-command';
 
 export class GameRoom extends Room<GameState> {
   dispatcher = new Dispatcher(this);
@@ -119,6 +120,9 @@ export class GameRoom extends Room<GameState> {
               options: message,
             });
             break;
+          case CommandsEnum.RestartGame:
+            this.dispatch(new RestartGameCommand(), client, { sessionId: client.sessionId, room: this });
+            break;
         }
       } catch (ex) {
         Sentry.captureException(ex);
@@ -128,6 +132,10 @@ export class GameRoom extends Room<GameState> {
 
   onAuth(client: Client, options: JoinOptionsDto) {
     try {
+      if (this.state.isLocked) {
+        client.send('error', 'Room is locked.');
+        return false;
+      }
       if (options.isStoryteller && this.state?.storyteller?.playerId) {
         client.send('error', 'Game already has a Storyteller.');
         return false;
