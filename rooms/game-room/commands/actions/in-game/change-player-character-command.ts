@@ -23,21 +23,11 @@ export class ChangePlayerCharacterCommand extends Command<
 
   execute({ sessionId, options } = this.payload) {
     const player: Player = this.state.players[options.playerId];
-    const currentCharacter = player.character.clone();
     const characterSet = getCharacterSet(options.characterSet);
     const newCharacter = characterSet?.getCharacter(options.characterName);
     if (player && newCharacter) {
-      this.removeFormerCharacterData(currentCharacter);
       this.state.reminderTokens.push(...newCharacter.reminderTokens);
       player.character = newCharacter;
     }
-  }
-
-  private removeFormerCharacterData(oldCharacter: Character) {
-    for (let id in this.state.players) {
-      const player: Player = this.state.players[id];
-      player.reminderTokens = player.reminderTokens.filter((x) => x.character.name !== oldCharacter.name);
-    }
-    this.state.reminderTokens = this.state.reminderTokens.filter((x) => x.character.name !== oldCharacter.name);
   }
 }
