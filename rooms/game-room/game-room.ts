@@ -32,6 +32,7 @@ import * as Sentry from '@sentry/node';
 import { CommandValidationError } from './util/command-validation-error';
 import { ClientMessageTypeEnum } from './util/client-messages/enum/client-message-type.enum';
 import { RestartGameCommand } from './commands/actions/in-game/restart-game-command';
+import { ToggleRoomLockCommand } from './commands/actions/in-game/toggle-room-lock-command';
 
 export class GameRoom extends Room<GameState> {
   dispatcher = new Dispatcher(this);
@@ -123,6 +124,9 @@ export class GameRoom extends Room<GameState> {
           case CommandsEnum.RestartGame:
             this.dispatch(new RestartGameCommand(), client, { sessionId: client.sessionId, room: this });
             break;
+          case CommandsEnum.ToggleRoomLock:
+            this.dispatch(new ToggleRoomLockCommand(), client, { sessionId: client.sessionId });
+            break;
         }
       } catch (ex) {
         Sentry.captureException(ex);
@@ -181,7 +185,7 @@ export class GameRoom extends Room<GameState> {
         }
 
         // allow disconnected client to reconnect into this room until 20 seconds
-        await this.allowReconnection(client, 60);
+        await this.allowReconnection(client, 20);
 
         // client returned! let's re-activate it.
         player.connected = true;
