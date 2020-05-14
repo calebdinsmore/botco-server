@@ -46,7 +46,7 @@ export class GameRoom extends Room<GameState> {
 
     // register actions
     this.onMessage('*', (client, type, message) => {
-      console.log('New Action', type, message);
+      // console.log('New Action', type, message);
       try {
         switch (type) {
           case CommandsEnum.SetPlayerSeat:
@@ -192,7 +192,7 @@ export class GameRoom extends Room<GameState> {
         client.send(ClientMessageTypeEnum.StaticGameData, new StaticGameData());
       } catch (e) {
         // 20 seconds expired. let's remove the client.
-        console.log('Removing player', client.sessionId);
+        // console.log('Removing player', client.sessionId);
         this.state.removePlayer(client.sessionId);
       }
     } catch (ex) {
