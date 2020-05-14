@@ -91,8 +91,9 @@ export class GameState extends Schema {
   removePlayer(id: string) {
     if (id === this.storyteller?.playerId) {
       this.storyteller = null;
-    } else {
+    } else if (this.players[id]) {
       this.fallbackIcons.push(this.players[id].fallbackIcon);
+      this.reminderTokens.push(...this.players[id].reminderTokens);
       delete this.players[id];
       delete this.storyteller?.chatRooms[id];
     }

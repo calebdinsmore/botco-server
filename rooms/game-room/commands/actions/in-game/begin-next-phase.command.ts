@@ -1,6 +1,6 @@
 import { CommandValidationError } from './../../../util/command-validation-error';
 import { Command } from '@colyseus/command';
-import { GameState } from '../../../schemas';
+import { GameState, Player } from '../../../schemas';
 import { GamePhaseEnum } from '../../../schemas/enum/game-phase.enum';
 
 export class BeginNextPhaseCommand extends Command<GameState, { sessionId: string }> {
@@ -22,6 +22,7 @@ export class BeginNextPhaseCommand extends Command<GameState, { sessionId: strin
         break;
       case GamePhaseEnum.FirstNight:
       case GamePhaseEnum.Night:
+        this.resetNominations();
         this.state.gamePhase = GamePhaseEnum.Day;
         this.state.nextGamePhase = GamePhaseEnum.Night;
         break;
@@ -30,6 +31,14 @@ export class BeginNextPhaseCommand extends Command<GameState, { sessionId: strin
         this.state.nextGamePhase = GamePhaseEnum.Day;
         this.state.votingSchema.reset(true);
         break;
+    }
+  }
+
+  private resetNominations() {
+    for (const id in this.state.players) {
+      const player: Player = this.state.players[id];
+      player.hasBeenNominated = false;
+      player.hasNominated = false;
     }
   }
 }
