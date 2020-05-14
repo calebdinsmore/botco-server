@@ -1,6 +1,7 @@
 import { Player } from './player';
-import { Schema, type } from '@colyseus/schema';
+import { Schema, type, MapSchema } from '@colyseus/schema';
 import { VotePhaseEnum } from './enum/vote-phase.enum';
+import { BooleanSchema } from './boolean-schema';
 
 export class Voting extends Schema {
   @type('string')
@@ -21,6 +22,9 @@ export class Voting extends Schema {
   @type('number')
   votesToExecute: number = 0;
 
+  @type({ map: BooleanSchema })
+  voteWarnings = new MapSchema<BooleanSchema>();
+
   beginVote: boolean = false;
   stopVote: boolean = false;
   voteInProgress: boolean = false;
@@ -33,6 +37,7 @@ export class Voting extends Schema {
     this.voteInProgress = false;
     this.stopVote = false;
     this.beginVote = false;
+    this.voteWarnings = new MapSchema<BooleanSchema>();
     if (full) {
       this.votesToExecute = 0;
       this.playerToBeExecutedId = null;

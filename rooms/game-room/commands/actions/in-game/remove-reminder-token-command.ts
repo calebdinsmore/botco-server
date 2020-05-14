@@ -11,7 +11,7 @@ export class RemoveReminderTokenCommand extends Command<
   { sessionId: string; options: RemoveReminderTokenPayloadDto }
 > {
   validate({ sessionId, options } = this.payload) {
-    if (sessionId === this.state.storyteller.playerId) {
+    if (sessionId === this.state.storyteller?.playerId) {
       if (isDefined(options.playerId) && isDefined(options.reminderTokenId)) {
         return true;
       }

@@ -16,7 +16,7 @@ export class SendChatMessageCommand extends Command<
   { sessionId: string; clients: Client[]; options: SendChatMessagePayloadDto }
 > {
   validate({ sessionId, options } = this.payload) {
-    if (sessionId === this.state.storyteller.playerId) {
+    if (sessionId === this.state.storyteller?.playerId) {
       if (isDefined(options.toPlayerId) && this.state.players[options.toPlayerId]) {
         if (options.content.length <= 200) {
           return true;
@@ -25,7 +25,7 @@ export class SendChatMessageCommand extends Command<
       }
       throw new CommandValidationError('Malformed command.');
     } else {
-      if (options.toPlayerId !== this.state.storyteller.playerId) {
+      if (options.toPlayerId !== this.state.storyteller?.playerId) {
         throw new CommandValidationError('You may only send messages to the Storyteller.');
       }
       return true;
@@ -35,7 +35,7 @@ export class SendChatMessageCommand extends Command<
   execute({ sessionId, clients, options } = this.payload) {
     let toPlayer: Player;
     let fromPlayer: Player;
-    if (sessionId === this.state.storyteller.playerId) {
+    if (sessionId === this.state.storyteller?.playerId) {
       fromPlayer = this.state.storyteller;
       toPlayer = this.state.players[options.toPlayerId];
     } else {

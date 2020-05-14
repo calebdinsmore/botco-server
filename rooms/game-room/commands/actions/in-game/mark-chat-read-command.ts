@@ -8,13 +8,13 @@ import * as _ from 'lodash';
 
 export class MarkChatReadCommand extends Command<GameState, { sessionId: string; options: MarkChatReadPayloadDto }> {
   validate({ sessionId, options } = this.payload) {
-    if (sessionId === this.state.storyteller.playerId) {
+    if (sessionId === this.state.storyteller?.playerId) {
       if (isDefined(options.toPlayerId) && this.state.players[options.toPlayerId]) {
         return true;
       }
       throw new CommandValidationError('Malformed command.');
     } else {
-      if (options.toPlayerId !== this.state.storyteller.playerId) {
+      if (options.toPlayerId !== this.state.storyteller?.playerId) {
         throw new CommandValidationError('You may only send messages to the Storyteller.');
       }
       return true;
@@ -23,7 +23,7 @@ export class MarkChatReadCommand extends Command<GameState, { sessionId: string;
 
   execute({ sessionId, options } = this.payload) {
     let player: Player;
-    if (sessionId === this.state.storyteller.playerId) {
+    if (sessionId === this.state.storyteller?.playerId) {
       player = this.state.storyteller;
     } else {
       player = this.state.players[sessionId];

@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import { Command } from '@colyseus/command';
 import { GameState, Player } from '../../../../schemas';
+import { BooleanSchema } from '../../../../schemas/boolean-schema';
 
 export class ProcessNextVoteCommand extends Command<GameState> {
   execute() {
@@ -11,8 +12,12 @@ export class ProcessNextVoteCommand extends Command<GameState> {
   private countVote() {
     if (!this.state.votingSchema.highlightedPlayerId) return;
     const highlightedPlayer: Player = this.state.players[this.state.votingSchema.highlightedPlayerId];
-    if (highlightedPlayer.handRaised && highlightedPlayer.canVote) {
+    if (highlightedPlayer.handRaised) {
       this.state.votingSchema.voteCount++;
+      highlightedPlayer.handLocked = true;
+      if (!highlightedPlayer.canVote) {
+        this.state.votingSchema.voteWarnings[highlightedPlayer.playerId] = new BooleanSchema(true);
+      }
       if (highlightedPlayer.isDead) {
         highlightedPlayer.canVote = false;
       }

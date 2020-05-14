@@ -8,7 +8,7 @@ import { SetCharactersDto } from './dto/set-characters.dto';
 export class SetCharactersCommand extends Command<GameState, { sessionId: string; options: SetCharactersDto }> {
   validate({ sessionId, options } = this.payload) {
     if (isDefined(options.characterNames) && isDefined(options.characterSet)) {
-      if (sessionId === this.state.storyteller.playerId) {
+      if (sessionId === this.state.storyteller?.playerId) {
         if (options.characterNames.length !== this.state.gameMeta.playerCount) {
           throw new CommandValidationError('Number of chosen characters must match the number of players in the room.');
         }

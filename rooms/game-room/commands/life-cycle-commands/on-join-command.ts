@@ -26,12 +26,12 @@ export class OnJoinCommand extends Command<GameState, { sessionId: string; optio
       this.state.storyteller = player;
       this.state.storyteller.fallbackIcon = 'em-mage';
     }
-    player.storytellerSessionId = this.state.storyteller.playerId;
+    player.storytellerSessionId = this.state.storyteller?.playerId;
     if (!player.isStoryteller) {
       player.fallbackIcon = this.state.fallbackIcons.pop();
       this.state.players[sessionId] = player;
       this.state.storyteller.chatRooms[player.playerId] = new ChatRoom(player.playerId);
-      player.chatRooms[this.state.storyteller.playerId] = new ChatRoom(this.state.storyteller.playerId);
+      player.chatRooms[this.state.storyteller?.playerId] = new ChatRoom(this.state.storyteller?.playerId);
     }
 
     this.state.gameMeta.updateFromState(this.state);

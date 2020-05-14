@@ -11,7 +11,7 @@ export class RevealGrimoireCommand extends Command<
   { sessionId: string; newRevealedClient: Client; oldRevealedClient: Client; options: RevealGrimoirePayloadDto }
 > {
   validate({ sessionId, options } = this.payload) {
-    if (sessionId === this.state.storyteller.playerId) {
+    if (sessionId === this.state.storyteller?.playerId) {
       if (!isDefined(options.playerId) || this.state.players[options.playerId]) {
         return true;
       }

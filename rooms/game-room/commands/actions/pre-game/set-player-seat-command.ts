@@ -7,7 +7,7 @@ import { isDefined } from '../../../util/util-functions';
 export class SetPlayerSeatCommand extends Command<GameState, { sessionId: string; options: SetPlayerSeatDto }> {
   validate({ sessionId, options } = this.payload) {
     if (isDefined(options.playerId) && isDefined(options.seatNumber)) {
-      if (sessionId === this.state.storyteller.playerId) {
+      if (sessionId === this.state.storyteller?.playerId) {
         return true;
       }
       throw new CommandValidationError('Only the Storyteller can arrange seats.');

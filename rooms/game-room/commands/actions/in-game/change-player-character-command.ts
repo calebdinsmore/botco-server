@@ -12,7 +12,7 @@ export class ChangePlayerCharacterCommand extends Command<
   { sessionId: string; options: ChangePlayerCharacterPayloadDto }
 > {
   validate({ sessionId, options } = this.payload) {
-    if (sessionId === this.state.storyteller.playerId) {
+    if (sessionId === this.state.storyteller?.playerId) {
       if (isDefined(options.playerId) && isDefined(options.characterSet) && isDefined(options.characterName)) {
         return true;
       }

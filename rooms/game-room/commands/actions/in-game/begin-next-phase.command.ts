@@ -5,7 +5,7 @@ import { GamePhaseEnum } from '../../../schemas/enum/game-phase.enum';
 
 export class BeginNextPhaseCommand extends Command<GameState, { sessionId: string }> {
   validate({ sessionId } = this.payload) {
-    if (sessionId === this.state.storyteller.playerId) {
+    if (sessionId === this.state.storyteller?.playerId) {
       if (this.state.gamePhase === GamePhaseEnum.PreGame && !this.state.charactersDistributed) {
         throw new CommandValidationError('Cannot proceed to the First Night without distributing characters.');
       }

@@ -12,7 +12,7 @@ export class BeginVoteCommand extends Command<GameState, { sessionId: string }> 
     if (this.state.votingSchema.voteInProgress) {
       throw new CommandValidationError('Vote currently in progress.');
     }
-    if (sessionId !== this.state.storyteller.playerId) {
+    if (sessionId !== this.state.storyteller?.playerId) {
       throw new CommandValidationError('Only the Storyteller can begin the vote.');
     }
     return true;

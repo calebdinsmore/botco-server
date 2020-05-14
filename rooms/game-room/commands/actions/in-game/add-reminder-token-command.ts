@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 export class AddReminderTokenCommand extends Command<GameState, { sessionId: string; options: AddReminderTokenDto }> {
   validate({ sessionId, options } = this.payload) {
     if (isDefined(options.reminderTokenId) && isDefined(options.playerId)) {
-      if (sessionId === this.state.storyteller.playerId) {
+      if (sessionId === this.state.storyteller?.playerId) {
         if (
           _.find(this.state.reminderTokens, (x) => x.id === options.reminderTokenId) &&
           this.state.players[options.playerId]

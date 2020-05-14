@@ -10,7 +10,7 @@ import { UpdatePlayerPayloadDto } from './dto/update-player-payload.dto';
 
 export class UpdatePlayerCommand extends Command<GameState, { sessionId: string; options: UpdatePlayerPayloadDto }> {
   validate({ sessionId, options } = this.payload) {
-    if (sessionId === this.state.storyteller.playerId) {
+    if (sessionId === this.state.storyteller?.playerId) {
       if (isDefined(options.playerId) && this.state.players[options.playerId]) {
         return true;
       }

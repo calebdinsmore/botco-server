@@ -8,6 +8,9 @@ export class ToggleHandCommand extends Command<GameState, { sessionId: string }>
     if (!this.state.votingSchema.nominatedPlayerId) {
       throw new CommandValidationError('No player has been nominated.');
     }
+    if (this.state.players[sessionId]?.handLocked) {
+      throw new CommandValidationError('Your hand has been locked in.');
+    }
     return true;
   }
 

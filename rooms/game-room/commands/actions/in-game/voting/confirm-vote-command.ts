@@ -13,7 +13,7 @@ export class ConfirmVoteCommand extends Command<GameState, { sessionId: string; 
     if (!isDefined(voteCount)) {
       throw new CommandValidationError('Invalid vote count.');
     }
-    if (sessionId !== this.state.storyteller.playerId) {
+    if (sessionId !== this.state.storyteller?.playerId) {
       throw new CommandValidationError('Only the Storyteller can confirm votes.');
     }
     if (this.state.votingSchema.votePhase !== VotePhaseEnum.PostVote) {
@@ -25,6 +25,7 @@ export class ConfirmVoteCommand extends Command<GameState, { sessionId: string; 
   execute({ sessionId, options } = this.payload) {
     for (let id in this.state.players) {
       this.state.players[id].handRaised = false;
+      this.state.players[id].handLocked = false;
     }
     this.state.votingSchema.voteCount = options.voteCount;
     if (

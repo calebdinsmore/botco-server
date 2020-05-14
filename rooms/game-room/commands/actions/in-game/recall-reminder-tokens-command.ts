@@ -6,7 +6,7 @@ import { ReminderToken } from '../../../schemas/reminder-token';
 
 export class RecallReminderTokensCommand extends Command<GameState, { sessionId: string }> {
   validate({ sessionId } = this.payload) {
-    if (sessionId === this.state.storyteller.playerId) {
+    if (sessionId === this.state.storyteller?.playerId) {
       return true;
     }
     throw new CommandValidationError('Only the Storyteller can control reminder tokens.');

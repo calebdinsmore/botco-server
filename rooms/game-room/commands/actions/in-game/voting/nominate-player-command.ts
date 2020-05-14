@@ -16,7 +16,7 @@ export class NominatePlayerCommand extends Command<
     if (!nominatedPlayer || !nominatingPlayer) {
       throw new CommandValidationError('Player does not exist.');
     }
-    if (sessionId !== this.state.storyteller.playerId) {
+    if (sessionId !== this.state.storyteller?.playerId) {
       throw new CommandValidationError('Only the Storyteller can process nominations.');
     }
     if (this.state.votingSchema.nominatedPlayerId) {
