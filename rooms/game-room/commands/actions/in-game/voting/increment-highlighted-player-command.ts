@@ -26,7 +26,7 @@ export class ProcessNextVoteCommand extends Command<GameState> {
 
   private incrementHighlightedPlayer() {
     const seatMap = this.state.seatMap;
-    const sortedSeatArray = [...seatMap].sort();
+    const sortedSeatArray = [...seatMap].sort((a, b) => a[0] - b[0]);
     let highlightedPlayer: Player;
     if (!this.state.votingSchema.highlightedPlayerId) {
       highlightedPlayer = this.state.players[this.state.votingSchema.nominatedPlayerId];
