@@ -50,14 +50,14 @@ export class SendChatMessageCommand extends Command<
     }
     const fromPlayerChatRoom = fromPlayer.chatRooms[options.toPlayerId] as ChatRoom;
     const toPlayerChatRoom = toPlayer.chatRooms[fromPlayer.playerId] as ChatRoom;
+    fromPlayerChatRoom.addMessage(fromPlayer.playerId, options.content);
+    toPlayerChatRoom.addMessage(fromPlayer.playerId, options.content);
     if (fromPlayerChatRoom.messages.length > 20) {
       fromPlayerChatRoom.messages.splice(0, 1);
     }
     if (toPlayerChatRoom.messages.length > 20) {
       toPlayerChatRoom.messages.splice(0, 1);
     }
-    fromPlayerChatRoom.addMessage(fromPlayer.playerId, options.content);
-    toPlayerChatRoom.addMessage(fromPlayer.playerId, options.content);
     if (!toPlayerChatRoom.hasUnread) {
       this.sendNotification(options.content, toPlayer.playerId, fromPlayer, clients);
     }

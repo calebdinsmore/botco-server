@@ -18,11 +18,15 @@ export class ReminderToken extends Schema {
   @type(Character)
   character: Character;
 
-  constructor(shortName: string, description: string, character: Character) {
+  @type('boolean')
+  sticky: boolean = false;
+
+  constructor(shortName: string, description: string, character: Character, sticky = false) {
     super();
     this.shortName = shortName;
     this.description = description;
     this.character = character;
     this.id = uuidv4();
+    this.sticky = false;
   }
 }
