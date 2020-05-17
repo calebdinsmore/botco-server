@@ -14,6 +14,7 @@ export enum CommandsEnum {
   ChangePlayerCharacter = 'change-player-character',
   RestartGame = 'restart-game',
   ToggleRoomLock = 'toggle-room-lock',
+  RemovePlayer = 'remove-player',
 
   // Voting
   NominatePlayer = 'nominate-player',

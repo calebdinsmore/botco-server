@@ -1,6 +1,7 @@
 import { GameState } from './game-state';
-import { Client } from 'colyseus';
 import { Schema, type } from '@colyseus/schema';
+import { GamePhaseEnum } from './enum/game-phase.enum';
+import * as _ from 'lodash';
 
 export class GameMeta extends Schema {
   @type('number')
@@ -19,8 +20,8 @@ export class GameMeta extends Schema {
   numberOfDemons: number = 0;
 
   updateFromState(state: GameState) {
-    this.playerCount = Object.keys(state.players).length;
-    if (this.playerCount < 5) return;
+    this.playerCount = state.playersAsArray.filter((x) => !x.inactive).length;
+    if (this.playerCount < 5 || state.gamePhase !== GamePhaseEnum.PreGame) return;
 
     this.numberOfDemons = 1;
     if (this.playerCount < 7) {

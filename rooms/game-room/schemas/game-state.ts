@@ -5,8 +5,8 @@ import { Schema, type, MapSchema, ArraySchema, filter } from '@colyseus/schema';
 import { Player } from './player';
 import { ReminderToken } from './reminder-token';
 import { Client } from 'colyseus';
-import * as _ from 'lodash';
 import { CharacterSetEnum } from './enum/character-set.enum';
+import * as _ from 'lodash';
 
 export class GameState extends Schema {
   @type('boolean')
@@ -86,6 +86,15 @@ export class GameState extends Schema {
 
   get livingPlayerCount() {
     return this.playersAsArray.filter((x) => !x.isDead).length;
+  }
+
+  deactivatePlayer(id: string) {
+    if (id === this.storyteller?.playerId) {
+      this.storyteller.inactive = true;
+    } else if (this.players[id]) {
+      this.players[id].inactive = true;
+    }
+    this.gameMeta.updateFromState(this);
   }
 
   removePlayer(id: string) {

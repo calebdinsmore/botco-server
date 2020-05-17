@@ -12,7 +12,6 @@ import { RemoveReminderTokenCommand } from './commands/actions/in-game/remove-re
 import { RecallReminderTokensCommand } from './commands/actions/in-game/recall-reminder-tokens-command';
 import { AddReminderTokenCommand } from './commands/actions/in-game/add-reminder-token-command';
 import { StaticGameData } from './schemas/static-game-data';
-import { TroubleBrewingSet } from './schemas/characters/sets/trouble-brewing-set';
 import { CommandsEnum } from './commands/commands.enum';
 import { Dispatcher, Command } from '@colyseus/command';
 import { JoinOptionsDto } from './commands/dto/join-options.dto';
@@ -33,6 +32,7 @@ import { CommandValidationError } from './util/command-validation-error';
 import { ClientMessageTypeEnum } from './util/client-messages/enum/client-message-type.enum';
 import { RestartGameCommand } from './commands/actions/in-game/restart-game-command';
 import { ToggleRoomLockCommand } from './commands/actions/in-game/toggle-room-lock-command';
+import { RemovePlayerCommand } from './commands/actions/in-game/remove-player-command';
 
 export class GameRoom extends Room<GameState> {
   dispatcher = new Dispatcher(this);
@@ -127,6 +127,14 @@ export class GameRoom extends Room<GameState> {
           case CommandsEnum.ToggleRoomLock:
             this.dispatch(new ToggleRoomLockCommand(), client, { sessionId: client.sessionId });
             break;
+          case CommandsEnum.RemovePlayer:
+            const clientToDisconnect = _.find(this.clients, (x) => x.sessionId === options?.playerId);
+            this.dispatch(new RemovePlayerCommand(), client, {
+              sessionId: client.sessionId,
+              client: clientToDisconnect,
+              options: message,
+            });
+            break;
         }
       } catch (ex) {
         Sentry.captureException(ex);
@@ -135,33 +143,7 @@ export class GameRoom extends Room<GameState> {
   }
 
   onAuth(client: Client, options: JoinOptionsDto) {
-    try {
-      if (this.state.isLocked) {
-        client.send('error', 'Room is locked.');
-        return false;
-      }
-      if (options.isStoryteller && this.state?.storyteller?.playerId) {
-        client.send('error', 'Game already has a Storyteller.');
-        return false;
-      } else if (!options.isStoryteller) {
-        if (options.username?.length > 12 || options.username?.length < 2) {
-          client.send('error', 'Username must be between 2 and 12 characters.');
-          return false;
-        }
-
-        for (let id in this.state.players) {
-          const player: Player = this.state.players[id];
-          if (player?.username?.toLowerCase().trim() === options.username?.toLowerCase().trim()) {
-            client.send('error', 'Username already in use in room. Try a different name.');
-            return false;
-          }
-        }
-      }
-      return true;
-    } catch (ex) {
-      Sentry.captureException(ex);
-      this.sendError(new Error('Something went wrong in Auth.'), client);
-    }
+    return this.validateJoinForAuth(options);
   }
 
   onJoin(client: Client, options: JoinOptionsDto) {
@@ -174,8 +156,10 @@ export class GameRoom extends Room<GameState> {
       let player: Player;
       if (client.sessionId === this.state.storyteller?.playerId) {
         player = this.state.storyteller;
-      } else {
+      } else if (this.state.players[client.sessionId]) {
         player = this.state.players[client.sessionId];
+      } else {
+        return; // no cleanup needed
       }
       player.connected = false;
 
@@ -191,9 +175,9 @@ export class GameRoom extends Room<GameState> {
         player.connected = true;
         client.send(ClientMessageTypeEnum.StaticGameData, new StaticGameData());
       } catch (e) {
-        // 20 seconds expired. let's remove the client.
+        // 45 seconds expired. let's remove the client.
         // console.log('Removing player', client.sessionId);
-        this.state.removePlayer(client.sessionId);
+        this.state.deactivatePlayer(client.sessionId);
       }
     } catch (ex) {
       Sentry.captureException(ex);
@@ -223,6 +207,28 @@ export class GameRoom extends Room<GameState> {
       }
       this.sendError(e, client);
     }
+  }
+
+  private validateJoinForAuth(options: JoinOptionsDto) {
+    // regular join
+    if (this.state.isLocked) {
+      throw new Error('Room is locked.');
+    }
+    if (options.isStoryteller && this.state?.storyteller?.playerId) {
+      throw new Error('A storyteller is already in ths room.');
+    } else if (!options.isStoryteller) {
+      if (options.username?.length > 12 || options.username?.length < 2) {
+        throw new Error('Username must be between 2 and 12 characters long.');
+      }
+
+      for (let id in this.state.players) {
+        const player: Player = this.state.players[id];
+        if (player?.username?.toLowerCase().trim() === options.username?.toLowerCase().trim()) {
+          throw new Error('Username already in use in this room.');
+        }
+      }
+    }
+    return true;
   }
 
   private async guaranteeUniqueRoomCode() {
