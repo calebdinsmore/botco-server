@@ -27,6 +27,6 @@ export class ReminderToken extends Schema {
     this.description = description;
     this.character = character;
     this.id = uuidv4();
-    this.sticky = false;
+    this.sticky = sticky;
   }
 }

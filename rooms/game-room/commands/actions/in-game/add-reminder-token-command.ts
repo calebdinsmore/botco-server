@@ -4,6 +4,7 @@ import { GameState } from '../../../schemas';
 import { isDefined } from '../../../util/util-functions';
 import { AddReminderTokenDto } from './dto/add-reminder-token.dto';
 import * as _ from 'lodash';
+import { ReminderToken } from '../../../schemas/reminder-token';
 
 export class AddReminderTokenCommand extends Command<GameState, { sessionId: string; options: AddReminderTokenDto }> {
   validate({ sessionId, options } = this.payload) {
@@ -24,8 +25,10 @@ export class AddReminderTokenCommand extends Command<GameState, { sessionId: str
 
   execute({ sessionId, options } = this.payload) {
     const index = _.findIndex(this.state.reminderTokens, (x) => x.id === options.reminderTokenId);
-    const token = this.state.reminderTokens[index].clone();
-    this.state.reminderTokens.splice(index, 1);
+    const token: ReminderToken = this.state.reminderTokens[index].clone();
+    if (!token.sticky) {
+      this.state.reminderTokens.splice(index, 1);
+    }
     this.state.players[options.playerId].reminderTokens.push(token);
   }
 }

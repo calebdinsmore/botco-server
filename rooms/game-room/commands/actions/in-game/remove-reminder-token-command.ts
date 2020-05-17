@@ -5,6 +5,7 @@ import { GameState } from '../../../schemas';
 import { RemoveReminderTokenPayloadDto } from './dto/remove-reminder-token-payload.dto';
 import { isDefined } from '../../../util/util-functions';
 import * as _ from 'lodash';
+import { ReminderToken } from '../../../schemas/reminder-token';
 
 export class RemoveReminderTokenCommand extends Command<
   GameState,
@@ -23,8 +24,10 @@ export class RemoveReminderTokenCommand extends Command<
   execute({ sessionId, options } = this.payload) {
     const player: Player = this.state.players[options.playerId];
     const index = _.findIndex(player.reminderTokens, (x) => x.id === options.reminderTokenId);
-    const token = player.reminderTokens[index].clone();
-    this.state.reminderTokens.push(token);
+    const token: ReminderToken = player.reminderTokens[index].clone();
+    if (!token.sticky) {
+      this.state.reminderTokens.push(token);
+    }
     player.reminderTokens.splice(index, 1);
   }
 }
