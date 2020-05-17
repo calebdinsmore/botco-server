@@ -1,5 +1,5 @@
 mongo-volume/
-
+lib/
 *.env
 
 lib-cov
