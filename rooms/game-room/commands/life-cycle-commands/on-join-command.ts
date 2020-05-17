@@ -5,11 +5,15 @@ import { Command } from '@colyseus/command';
 import { GameState, Player } from '../../schemas';
 
 export class OnJoinCommand extends Command<GameState, { sessionId: string; options: JoinOptionsDto }> {
-  validate({ sessionId, options } = this.payload) {
+  validate({} = this.payload) {
+    // validation done in onAuth
     return true;
   }
 
   execute({ sessionId, options } = this.payload) {
+    if (options.spectator) {
+      return;
+    }
     const player = new Player();
     player.playerId = sessionId;
     player.username = options.username;

@@ -36,7 +36,7 @@ import { RemovePlayerCommand } from './commands/actions/in-game/remove-player-co
 
 export class GameRoom extends Room<GameState> {
   dispatcher = new Dispatcher(this);
-  maxClients = 17;
+  maxClients = 30;
   votingInterval: Delayed;
 
   async onCreate(options: any) {
@@ -211,16 +211,18 @@ export class GameRoom extends Room<GameState> {
 
   private validateJoinForAuth(options: JoinOptionsDto) {
     // regular join
-    if (this.state.isLocked) {
+    if (this.state.isLocked && !options.spectator) {
       throw new Error('Room is locked.');
     }
     if (options.isStoryteller && this.state?.storyteller?.playerId) {
       throw new Error('A storyteller is already in ths room.');
-    } else if (!options.isStoryteller) {
+    } else if (!options.isStoryteller && !options.spectator) {
       if (options.username?.length > 12 || options.username?.length < 2) {
         throw new Error('Username must be between 2 and 12 characters long.');
       }
-
+      if (Object.keys(this.state.players).length === this.state.maxPlayerCount) {
+        throw new Error('Room is currently at max player capacity.');
+      }
       for (let id in this.state.players) {
         const player: Player = this.state.players[id];
         if (player?.username?.toLowerCase().trim() === options.username?.toLowerCase().trim()) {

@@ -48,6 +48,8 @@ export class GameState extends Schema {
   @type('string')
   characterSet: CharacterSetEnum;
 
+  maxPlayerCount = 16;
+
   fallbackIcons: string[] = [
     'em-male-student',
     'em-male-office-worker',
