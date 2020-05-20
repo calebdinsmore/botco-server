@@ -33,6 +33,8 @@ import { ClientMessageTypeEnum } from './util/client-messages/enum/client-messag
 import { RestartGameCommand } from './commands/actions/in-game/restart-game-command';
 import { ToggleRoomLockCommand } from './commands/actions/in-game/toggle-room-lock-command';
 import { RemovePlayerCommand } from './commands/actions/in-game/remove-player-command';
+import { NotificationPayloadDto } from './util/client-messages/dto/notification-payload.dto';
+import { NotificationTypeEnum } from './util/client-messages/enum/notification-type.enum';
 
 export class GameRoom extends Room<GameState> {
   dispatcher = new Dispatcher(this);
@@ -155,6 +157,11 @@ export class GameRoom extends Room<GameState> {
     try {
       let player: Player;
       if (client.sessionId === this.state.storyteller?.playerId) {
+        this.broadcast(ClientMessageTypeEnum.Notification, {
+          type: NotificationTypeEnum.Warn,
+          detail: 'Your Storyteller has disconnected!',
+          summary: 'Connection Issue',
+        } as NotificationPayloadDto);
         player = this.state.storyteller;
       } else if (this.state.players[client.sessionId]) {
         player = this.state.players[client.sessionId];
