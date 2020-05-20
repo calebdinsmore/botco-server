@@ -12,10 +12,7 @@ export class RevealGrimoireCommand extends Command<
 > {
   validate({ sessionId, options } = this.payload) {
     if (sessionId === this.state.storyteller?.playerId) {
-      if (isDefined(options.playerId) && this.state.players[options.playerId]) {
-        return true;
-      }
-      throw new CommandValidationError('Malformed command.');
+      return true;
     }
     throw new CommandValidationError('Only the Storyteller can reveal the Grimoire.');
   }
