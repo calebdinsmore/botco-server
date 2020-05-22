@@ -12,9 +12,9 @@ export class ProcessNextVoteCommand extends Command<GameState> {
   private countVote() {
     if (!this.state.votingSchema.highlightedPlayerId) return;
     const highlightedPlayer: Player = this.state.players[this.state.votingSchema.highlightedPlayerId];
+    highlightedPlayer.handLocked = true;
     if (highlightedPlayer.handRaised) {
       this.state.votingSchema.voteCount++;
-      highlightedPlayer.handLocked = true;
       if (!highlightedPlayer.canVote) {
         this.state.votingSchema.voteWarnings[highlightedPlayer.playerId] = new BooleanSchema(true);
       }
