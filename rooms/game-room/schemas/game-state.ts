@@ -48,6 +48,15 @@ export class GameState extends Schema {
   @type('string')
   characterSet: CharacterSetEnum;
 
+  @type('number')
+  shotClockSeconds: number;
+
+  @type('boolean')
+  shotClockIsPaused: boolean;
+
+  startShotClock: boolean;
+  stopShotClock: boolean;
+
   maxPlayerCount = 16;
 
   fallbackIcons: string[] = [

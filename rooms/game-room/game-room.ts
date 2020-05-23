@@ -35,11 +35,13 @@ import { ToggleRoomLockCommand } from './commands/actions/in-game/toggle-room-lo
 import { RemovePlayerCommand } from './commands/actions/in-game/remove-player-command';
 import { NotificationPayloadDto } from './util/client-messages/dto/notification-payload.dto';
 import { NotificationTypeEnum } from './util/client-messages/enum/notification-type.enum';
+import { ControlShotClockCommand } from './commands/actions/in-game/shot-clock/control-shot-clock-command';
 
 export class GameRoom extends Room<GameState> {
   dispatcher = new Dispatcher(this);
   maxClients = 30;
   votingInterval: Delayed;
+  shotClockInterval: Delayed;
 
   async onCreate(options: any) {
     await this.guaranteeUniqueRoomCode();
@@ -136,6 +138,12 @@ export class GameRoom extends Room<GameState> {
               client: clientToDisconnect,
               options: message,
             });
+            break;
+          case CommandsEnum.ControlShotClock:
+            this.dispatch(new ControlShotClockCommand(), client, { sessionId: client.sessionId, options: message });
+            if (this.state.startShotClock) {
+              this.startShotClock();
+            }
             break;
         }
       } catch (ex) {
@@ -271,6 +279,26 @@ export class GameRoom extends Room<GameState> {
         this.clock.stop();
       }
     }, 2000);
+  }
+
+  private startShotClock() {
+    this.clock.start();
+    this.state.startShotClock = false;
+    this.shotClockInterval = this.clock.setInterval(() => {
+      if (!this.state.shotClockIsPaused) {
+        this.state.shotClockSeconds -= 1;
+      }
+      if (this.state.shotClockSeconds <= 0 || this.state.stopShotClock) {
+        this.broadcast(ClientMessageTypeEnum.Notification, {
+          type: NotificationTypeEnum.Warn,
+          detail: 'Shot clock has ended!',
+        } as NotificationPayloadDto);
+        this.state.shotClockSeconds = 0;
+        this.state.stopShotClock = false;
+        this.shotClockInterval.clear();
+        this.clock.stop();
+      }
+    }, 1000);
   }
 
   private sendError(error: any, client?: Client) {
