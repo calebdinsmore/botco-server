@@ -15,6 +15,7 @@ export interface JsonRole {
 import rolesJsonFile from './roles.json';
 import { BadMoonRisingSet } from '../schemas/characters/sets/bad-moon-rising-set';
 import { SectsAndVioletsSet } from '../schemas/characters/sets/sects-and-violets-set';
+import { LaissezUnFaireSet } from '../schemas/characters/sets/laissez-un-faire-set';
 export const rolesJson: JsonRole[] = rolesJsonFile;
 
 export function isDefined(value: any) {
@@ -29,5 +30,7 @@ export function getCharacterSet(characterSet: CharacterSetEnum) {
       return new BadMoonRisingSet();
     case CharacterSetEnum.SectsAndViolets:
       return new SectsAndVioletsSet();
+    case CharacterSetEnum.LaissezUnFaire:
+      return new LaissezUnFaireSet();
   }
 }

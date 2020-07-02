@@ -20,7 +20,7 @@ export class CharacterSet {
       character.firstNightReminder = jsonCharacter.firstNightReminder;
       character.otherNightReminder = jsonCharacter.otherNightReminder;
       character.characterType = jsonCharacter.team as CharacterTypeEnum;
-      character.characterSet = jsonCharacter.edition as CharacterSetEnum;
+      character.characterSet = setName;
       character.setup = jsonCharacter.setup;
     }
     this.characters = characters;
