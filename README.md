@@ -8,6 +8,7 @@
 ## Running for Development
 
 ```sh
+echo "MONITOR_PASSWORD=your_password_here" > .env
 npm install
 npm run start
 ```
